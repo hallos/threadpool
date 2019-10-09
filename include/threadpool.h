@@ -13,7 +13,7 @@ public:
     {
         for (int i = 0; i < nr_threads; i++)
         {
-            threads_.emplace_back(new std::thread(&thread_pool::run_pool_thread, this));
+            threads_.emplace_back(new std::thread(&thread_pool::run_worker_thread, this));
         }
     };
     ~thread_pool()
@@ -40,7 +40,7 @@ private:
     std::mutex queue_mutex_;
     std::condition_variable work_available_;
 
-    void run_pool_thread()
+    void run_worker_thread()
     {
         while (run_threads_)
         {
