@@ -3,8 +3,10 @@
 #include <thread>
 #include <queue>
 #include <functional>
+#include <future>
 #include <mutex>
 #include <condition_variable>
+
 
 class thread_pool
 {
@@ -21,16 +23,24 @@ public:
         run_threads_ = false;
         for (const auto& thread : threads_)
         {
-            add_work([](){});
+            std::function<int()> func = [](){ return 6; };
+            add_work(func);
             thread->join();
         }
     };
 
-    void add_work(const std::function<void()>& work)
+    template <typename T, typename... ARGS>
+    std::future<T> add_work(std::function<T(ARGS...)> function)
     {
-        std::lock_guard<std::mutex> lock(queue_mutex_);
-        work_queue_.emplace(work);
-        work_available_.notify_all();
+        std::packaged_task<T(ARGS...)> task(function);
+        std::future<T> ret = task.get_future();
+        //auto work = [task](){ task(); };
+        queue_mutex_.lock();
+        //work_queue_.emplace(work);
+        queue_mutex_.unlock();
+        work_available_.notify_one();
+
+        return ret;
     }
 
 private:
@@ -51,6 +61,8 @@ private:
             }
             auto function = work_queue_.front();
             work_queue_.pop();
+            lock.unlock();
+
             function();
         }
     }
