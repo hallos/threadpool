@@ -32,8 +32,7 @@ public:
     template <typename T, typename... ARGS>
     std::future<T> add_work(std::function<T(ARGS...)> function)
     {
-        std::packaged_task<T(ARGS...)> task(function);
-        auto ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(std::move(task));
+        auto ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(function);
         std::future<T> ret = ptr->get_future();
         auto work = [ptr](){ (*ptr)(); };
 
