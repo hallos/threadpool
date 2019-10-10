@@ -33,13 +33,15 @@ public:
     std::future<T> add_work(std::function<T(ARGS...)> function)
     {
         std::packaged_task<T(ARGS...)> task(function);
+        auto ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(std::move(task));
         std::future<T> ret = task.get_future();
-        //auto work = [task](){ task(); };
-        queue_mutex_.lock();
-        //work_queue_.emplace(work);
-        queue_mutex_.unlock();
-        work_available_.notify_one();
+        auto work = [ptr](){ (*ptr)(); };
 
+        queue_mutex_.lock();
+        work_queue_.emplace(work);
+        queue_mutex_.unlock();
+
+        work_available_.notify_one();
         return ret;
     }
 
