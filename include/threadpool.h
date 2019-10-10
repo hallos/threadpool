@@ -32,16 +32,15 @@ public:
     template <typename T, typename... ARGS>
     std::future<T> add_work(std::function<T(ARGS...)> function)
     {
-        auto ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(function);
-        std::future<T> ret = ptr->get_future();
-        auto work = [ptr](){ (*ptr)(); };
+        auto task_ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(function);
+        auto work = [task_ptr](){ (*task_ptr)(); };
 
         queue_mutex_.lock();
         work_queue_.emplace(work);
         queue_mutex_.unlock();
 
         work_available_.notify_one();
-        return ret;
+        return task_ptr->get_future();
     }
 
 private:
