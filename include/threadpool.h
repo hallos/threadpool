@@ -34,7 +34,7 @@ public:
     {
         std::packaged_task<T(ARGS...)> task(function);
         auto ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(std::move(task));
-        std::future<T> ret = task.get_future();
+        std::future<T> ret = ptr->get_future();
         auto work = [ptr](){ (*ptr)(); };
 
         queue_mutex_.lock();

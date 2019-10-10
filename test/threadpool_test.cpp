@@ -3,12 +3,15 @@
 #include "../include/threadpool.h"
 
 
-TEST_CASE("")
+
+TEST_CASE("Thread pool executes function and returns expected value")
 {
     thread_pool threadPool(1);
 
-    std::function<void()> lambda = [](){ std::cout << "HelloWorld!"; };
-    threadPool.add_work(lambda);
-    REQUIRE(false);
+    int value = 6;
+    std::function<int()> func = [&value](){ return value; };
+    auto future = threadPool.add_work(func);
 
+    future.wait();
+    REQUIRE(future.get() == value);
 }
