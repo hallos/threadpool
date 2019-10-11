@@ -1,7 +1,3 @@
-include_directories(
-    ../include
-    ../external
-)
 
 add_executable(threadpool_test
     threadpool_test.cpp
@@ -9,4 +5,9 @@ add_executable(threadpool_test
 
 target_link_libraries(threadpool_test
     pthread
+)
+
+add_test(
+    NAME threadpool
+    COMMAND threadpool_test
 )

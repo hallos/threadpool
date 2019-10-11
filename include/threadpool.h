@@ -7,7 +7,8 @@
 #include <mutex>
 #include <condition_variable>
 
-
+namespace hallos
+{
 class thread_pool
 {
 public:
@@ -70,3 +71,4 @@ private:
         }
     }
 };
+} //namespace hallos
