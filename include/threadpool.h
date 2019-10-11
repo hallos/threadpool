@@ -31,12 +31,12 @@ public:
     };
 
     template <typename T, typename... ARGS>
-    std::future<T> add_work(std::function<T(ARGS...)> function)
+    std::future<T> add_work(std::function<T(ARGS...)> function, ARGS... arguments)
     {
         auto task_ptr = std::make_shared<std::packaged_task<T(ARGS...)>>(function);
-        auto work = [task_ptr]()
+        auto work = [task_ptr, arguments...]()
                         {
-                            (*task_ptr)();
+                            (*task_ptr)(arguments...);
                         };
         {
             std::lock_guard<std::mutex> lock(queue_mutex_);
